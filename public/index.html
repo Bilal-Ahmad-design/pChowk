@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../dist/main.js"></script>
+    <title>Node firebase</title>
+  </head>
+  <body>
+    <!-- Insert this script at the bottom of the HTML, but before you use any Firebase services -->
+
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js';
+
+      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+      // Add Firebase products that you want to use
+
+      import { firestore } from 'https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js';
+    </script>
+  </body>
+</html>
