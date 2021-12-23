@@ -8,15 +8,48 @@
     <title>Node firebase</title>
   </head>
   <body>
-    <!-- Insert this script at the bottom of the HTML, but before you use any Firebase services -->
+    <div>
+      <h1>Firebase image upload</h1>
+      <input type="file" id="photo" />
+      <button onclick="uploadImage()" id="btn">Upload image</button>
+    </div>
 
     <script type="module">
-      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js';
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+      import { getStorage } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js';
 
-      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
-      // Add Firebase products that you want to use
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
 
-      import { firestore } from 'https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js';
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: 'AIzaSyAuS3RJpwPlOTc9-ikq7b_opkraDL32wsg',
+        authDomain: 'property-chowk-4608c.firebaseapp.com',
+        projectId: 'property-chowk-4608c',
+        storageBucket: 'property-chowk-4608c.appspot.com',
+        messagingSenderId: '908989071036',
+        appId: '1:908989071036:web:70064a22ef0df7a0955ab9',
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+
+      function uploadImage() {
+        const ref = firebase.storage().ref();
+        const file = document.querySelector('#photo').files[0];
+        const name = `${new Date()} '-' ${file.name}`;
+        const metadata = {
+          contentType: file.type,
+        };
+        const task = ref
+          .child(name)
+          .put(file, metadata)
+          .then((snapshot) => snapshot.ref.getDownloadURL())
+          .then((url) => {
+            console.log(url);
+          });
+      }
     </script>
   </body>
 </html>

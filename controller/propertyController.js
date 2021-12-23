@@ -1,15 +1,67 @@
-const db = require('../index');
+const { db, bucket } = require('../index');
 const Property = require('../model/propertyModel');
 const { validationResult } = require('express-validator');
+const bucket_url = 'gs://property-chowk-4608c.appspot.com';
+const express = require('express');
+const app = express();
+const multer = require('multer');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+app.use(express.json());
+app.use(bodyParser.json());
+
+//file upload by Acedemind
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '');
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()} ${file.originalname}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpge' || file.mimetype === 'image/jpg') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+});
 
 const addProperty = async (req, res, next) => {
+  console.log('add');
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array()[0] });
     }
+    //image upload
 
+    console.log('FIle upload');
+    const path = req.file.path;
+    console.log(req.file);
+    const uploadedImage = await bucket.upload(path, {
+      destination: `properties/${req.file.filename}`,
+    });
+    if (uploadedImage) {
+      try {
+        fs.unlinkSync(path);
+      } catch (error) {
+        res.status(400).send(error);
+      }
+    }
+    //
     const pCollection = db.collection('add_property');
+    const createdAt = Date.now();
+    req.body.createdAt = createdAt;
     await pCollection.add(req.body);
     res.status(201).json({
       status: 'Data save successfully!',
@@ -52,7 +104,8 @@ const getAllProperty = async (req, res, next) => {
           doc.data().propertySize,
           doc.data().price,
           doc.data().propertyDescription,
-          doc.data().propertyFeatures
+          doc.data().propertyFeatures,
+          doc.data().createdAt.Date()
         );
         propertyArray.push(newProperty);
       });
@@ -76,8 +129,6 @@ const getOneProperty = async (req, res, next) => {
       res.status(404).send(`No document found with id: ${id}`);
     }
     res.send(aProperty.data());
-
-    // console.log(isUuid('11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000'));
   } catch (error) {
     res.send(error.message);
   }
@@ -134,6 +185,17 @@ const queryData = async (req, res, next) => {
     console.log(error.message);
   }
 };
+
+const fileUpload = async (req, res, next) => {
+  try {
+    const filePath = req.body;
+    console.log(filePath);
+    await bucket.upload(req.body);
+    res.send('file uploaded successfully');
+  } catch (error) {
+    console.log(error);
+  }
+};
 // const storage = getStorage();
 
 module.exports = {
@@ -143,4 +205,6 @@ module.exports = {
   updateProperty,
   deleteProperty,
   queryData,
+  fileUpload,
+  upload,
 };

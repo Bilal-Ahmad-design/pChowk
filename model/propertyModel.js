@@ -25,7 +25,8 @@ class Property {
     propertyDescription,
     propertyFeatures,
     images,
-    videos
+    videos,
+    createdAt
   ) {
     this.id = id;
     this.propertyPurpose = propertyPurpose;
